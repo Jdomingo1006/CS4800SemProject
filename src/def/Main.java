@@ -221,7 +221,7 @@ public class Main extends Application {
         //HBox hBox4 = new HBox();
         //hBox4.setAlignment(Pos.CENTER);
 
-        vBox2 = new VBox(150, hBox3);
+        vBox2 = new VBox(75, hBox3);
         vBox2.setAlignment(Pos.CENTER);
 
         setUpValidation(userText);
