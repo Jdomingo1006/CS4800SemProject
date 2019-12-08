@@ -24,6 +24,8 @@ public class Main extends Application {
     private MenuItem exitItem;
 
     private VBox vBox1, vBox2;
+    
+    private HBox hBox4;
 
     private Label userLabel, passLabel, heightLabel, shoulderLabel, hipLabel;
     
@@ -168,7 +170,6 @@ public class Main extends Application {
         });
         
         profileButton.setOnAction(event -> {
-        	vBox2.getChildren().add(imageView);
         	borderpane.setCenter(vBox2);
         	borderpane.setTop(menuBar);
         });
@@ -182,7 +183,22 @@ public class Main extends Application {
 					heightLabel.setText("");
 					return;
 				}
-				heightLabel.setText("Height: " + Math.round(newValue.doubleValue()));
+				
+				int newVal = (int) Math.round(newValue.doubleValue());
+				int oldVal = (int) Math.round(oldValue.doubleValue());
+				
+				heightLabel.setText("Height: " + newVal);	
+				
+				int factor = (int) imageView.getFitHeight();
+				
+				if (newVal > oldVal) {
+					factor += (newVal - oldVal);
+					imageView.setFitHeight(factor);
+				}
+				else if (newVal < oldVal) {
+					factor -= (oldVal - newVal);
+					imageView.setFitHeight(factor);
+				}
 			}
         	
         });
@@ -218,10 +234,10 @@ public class Main extends Application {
         // Create Layout Containers
         HBox hBox3 = new HBox(15, bmiButton, dressButton, addDressButton, logoutButton);
         hBox3.setAlignment(Pos.CENTER);
-        //HBox hBox4 = new HBox();
-        //hBox4.setAlignment(Pos.CENTER);
+        HBox hBox4 = new HBox(imageView);
+        hBox4.setAlignment(Pos.CENTER);
 
-        vBox2 = new VBox(75, hBox3);
+        vBox2 = new VBox(50, hBox3, hBox4);
         vBox2.setAlignment(Pos.CENTER);
 
         setUpValidation(userText);
