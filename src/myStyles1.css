@@ -32,9 +32,12 @@
     -fx-text-fill: black;
 }
 .slider  {
+ -fx-text-fill: black;
  -fx-background-color: lightblue;
  -fx-padding: 0.333333em;
+ -fx-background-radius: 6;
 }
 .slider .fill:hover {
  -fx-background-color: #219297;
+ -fx-background-radius: 6;
 }
