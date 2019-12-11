@@ -488,8 +488,8 @@ public class Main extends Application {
         vBox2 = new VBox(50, hBox3, hBox4);
         vBox2.setAlignment(Pos.CENTER);
 
-        setUpValidation(userText, passText, enterButton);
-        setUpValidation(newUserText, newPassText, enter1Button);
+        //setUpValidation(userText, passText, enterButton);
+        //setUpValidation(newUserText, newPassText, enter1Button);
         
         // Create Controls
         // Set events to Controls
