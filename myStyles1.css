@@ -14,9 +14,11 @@
 .menu-bar {
     -fx-background-color: transparent;
     -fx-background-color: lightblue;
+
 }
 .menu {
     -fx-label-padding: 3px;
+
 }
 .menu .label, .menu-item .label {
     -fx-text-fill: #eee;
@@ -40,4 +42,7 @@
 .slider .fill:hover {
  -fx-background-color: #219297;
  -fx-background-radius: 6;
+}
+.menu-bar .label{
+    -fx-text-fill: greenyellow;
 }
