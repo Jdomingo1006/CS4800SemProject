@@ -8,6 +8,8 @@
 }
 .button{
     -fx-background-radius: 5;
+    -fx-background-color: linear-gradient(#86c1b9, #7cafc2);
+    -fx-text-fill: #FFFFFF;
 }
 .menu-bar {
     -fx-background-color: transparent;
@@ -29,4 +31,10 @@
     -fx-background-color: white;
     -fx-text-fill: black;
 }
-
+.slider  {
+ -fx-background-color: lightblue;
+ -fx-padding: 0.333333em;
+}
+.slider .fill:hover {
+ -fx-background-color: #219297;
+}
