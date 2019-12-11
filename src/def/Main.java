@@ -147,11 +147,11 @@ public class Main extends Application {
         userText = new TextField();
         passText = new PasswordField();
 
-        userLabel.setTooltip(new Tooltip("Username should be at least 7 characters long"));
+      /*  userLabel.setTooltip(new Tooltip("Username should be at least 7 characters long"));
         passLabel.setTooltip(new Tooltip("Password should be at least 7 characters long"));
         userText.setTooltip(new Tooltip("Username should be at least 7 characters long"));
         passText.setTooltip(new Tooltip("Password should be at least 7 characters long"));
-
+	*/
         newUser = new Label("New User Name");
         newPass = new Label("New Password");
 
