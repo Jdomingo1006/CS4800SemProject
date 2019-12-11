@@ -167,10 +167,10 @@ public class Main extends Application {
         errorLabel = new Label("");
         cancelButton = new Button("Cancel");
         enter1Button = new Button("Enter");
-        enter1Button.setDisable(true);
+        //enter1Button.setDisable(true);
         
         enterButton = new Button("Enter");
-        enterButton.setDisable(true);
+        //enterButton.setDisable(true);
         
         choose = new Button("Choose");
         display = new Button("Display");
