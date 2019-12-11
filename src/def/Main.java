@@ -18,6 +18,19 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import com.mongodb.MongoClient;
+import com.mongodb.diagnostics.logging.Logger;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
+
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+
 public class Main extends Application {
     private Menu fileMenu;
     private MenuItem newItem;
@@ -25,34 +38,51 @@ public class Main extends Application {
 
     private VBox vBox1, vBox2;
     
-    private HBox hBox4;
+    private HBox hBox5;
 
-    private Label userLabel, passLabel, heightLabel, shoulderLabel, hipLabel;
+    private Label userLabel, passLabel, newUser, newPass, heightLabel, shoulderLabel, hipLabel, errorLabel;
     
     private Slider heightSlider, shoulderSlider, hipSlider;
 
-    private Button enterButton, logoutButton, bmiButton, dressButton, addDressButton, profileButton;
+    private Button enterButton, enter1Button, cancelButton, newAccount, logoutButton, bmiButton, dressButton, addDressButton, profileButton;
 
-    private TextField userText;
+    private TextField userText, newUserText;
 
-    private PasswordField passText;
+    private PasswordField passText, newPassText;
 
     private Scene scene1, scene2, scene3;
 
     private BorderPane borderpane;
+    
+    private MongoClient mongoClient;
+    
+    private DB database;
+    
+    private DBCollection collection;
+    
+    private Account account;
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         launch(args);
     }
 
-    public void start(Stage primaryStage) throws FileNotFoundException {   	
+    public void start(Stage primaryStage) throws FileNotFoundException { 
+    	// Sets up Database
+    	java.util.logging.Logger.getLogger("org.mongodb.driver").setLevel(Level.SEVERE);
+    	
+    	mongoClient = new MongoClient("localhost", 27017);
+    	
+    	database = mongoClient.getDB("accountdatabase");
+    	
+    	collection = database.getCollection("accounts");
+    	
         // Create Controls
     	FileInputStream inputStream = new FileInputStream("src/figure_silhouette_png.png");
     	Image image = new Image(inputStream);
     	ImageView imageView = new ImageView(image);
     	imageView.setFitHeight(200);
-    	imageView.setPreserveRatio(true);
+    	imageView.setFitWidth(53.5);
     	
     	profileButton = new Button("Generate Profile");
     	
@@ -89,17 +119,82 @@ public class Main extends Application {
         userText.setTooltip(new Tooltip("Username should be at least 7 characters long"));
         passText.setTooltip(new Tooltip("Password should be at least 7 characters long"));
 
+        newUser = new Label("New User Name");
+        newPass = new Label("New Password");
+
+        newUserText = new TextField();
+        newPassText = new PasswordField();
+
+        newUser.setTooltip(new Tooltip("Username should be at least 7 characters long"));
+        newPass.setTooltip(new Tooltip("Password should be at least 7 characters long"));
+        newUserText.setTooltip(new Tooltip("Username should be at least 7 characters long"));
+        newPassText.setTooltip(new Tooltip("Password should be at least 7 characters long"));
+        
+        newAccount = new Button("New Account");
+        errorLabel = new Label("");
+        cancelButton = new Button("Cancel");
+        enter1Button = new Button("Enter");
+        enter1Button.setDisable(true);
+        
         enterButton = new Button("Enter");
         enterButton.setDisable(true);
         
         // Set events to Control
-        enterButton.setOnAction(event -> {
-            MenuBar menuBar = new MenuBar();
-            menuBar.getMenus().add(fileMenu);
+        newAccount.setOnAction(event -> {
+        	GridPane gridPane2 = new GridPane();
+            gridPane2.addRow(0, newUser, newUserText);
+            gridPane2.addRow(1, newPass, newPassText);
+            gridPane2.setHgap(15);
+            gridPane2.setVgap(15);
+            gridPane2.setAlignment(Pos.CENTER);
             
-            borderpane.setCenter(vBox2);
-            borderpane.setTop(menuBar);
-
+        	HBox hBox6 = new HBox(15, enter1Button, cancelButton);
+        	hBox6.setAlignment(Pos.CENTER);
+        	
+        	VBox vBox3 = new VBox(10, gridPane2, errorLabel, hBox6);
+        	vBox3.setAlignment(Pos.CENTER);
+        	
+        	borderpane.setCenter(vBox3);
+        });
+        
+        cancelButton.setOnAction(event -> {
+        	borderpane.setCenter(vBox1);
+        });
+        
+        enter1Button.setOnAction(event -> {   
+        	DBObject query = new BasicDBObject("username", userText.getText());
+        	DBCursor cursor = collection.find(query);
+        	
+        	if (cursor.itcount() == 0) 
+        		errorLabel.setText("Username taken");
+        	else {      	
+        		account = new Account(newUserText.getText(), newPassText.getText());
+        		collection.insert(AccountConversion.toDBObject(account));
+        		borderpane.setCenter(vBox1);
+                enter1Button.setDisable(true);
+        	}
+        });
+        enter1Button.setStyle("-fx-background-color: linear-gradient(#86c1b9, #7cafc2); -fx-text-fill: #FFFFFF");
+        
+        enterButton.setOnAction(event -> {
+        	DBObject query = new BasicDBObject("username", userText.getText());
+        	DBCursor cursor = collection.find(query);
+        	DBObject user = cursor.one();
+        	
+        	if (cursor.itcount() == 1) {
+        		if (user.get("password").equals(passText.getText())) {
+        		
+        		
+        			errorLabel.setText("");
+        		
+        			borderpane.setCenter(vBox2);
+        			enterButton.setDisable(true);
+        		}
+        		else
+        			errorLabel.setText("Password does not match Username");
+        	}
+        	else if (cursor.itcount() == 0) 
+        		errorLabel.setText("Username does not exist");
         });
         enterButton.setStyle("-fx-background-color: linear-gradient(#86c1b9, #7cafc2); -fx-text-fill: #FFFFFF");
 
@@ -115,7 +210,11 @@ public class Main extends Application {
         gridpane.addRow(1, passLabel, passText);
         gridpane.setHgap(15);
         gridpane.setVgap(15);
-        vBox1 = new VBox(10, gridpane, enterButton);
+        
+        hBox5 = new HBox(15, enterButton, newAccount);
+        hBox5.setAlignment(Pos.CENTER);
+        
+        vBox1 = new VBox(10, gridpane, errorLabel, hBox5);
         vBox1.setAlignment(Pos.CENTER);
 
         gridpane.setAlignment(Pos.CENTER);
@@ -126,15 +225,11 @@ public class Main extends Application {
         scene1 = new Scene(borderpane, 550, 400);
         scene1.getStylesheets().add("myStyles1.css");
 
-
-
         // Sets scene onto primaryStage
         primaryStage.setScene(scene1);
 
         // Show the stage
         primaryStage.show();
-
-
 
         // Create Controls
         logoutButton = new Button ("Logout");
@@ -147,7 +242,6 @@ public class Main extends Application {
             userText.setText("");
             passText.setText("");
             borderpane.setCenter(vBox1);
-            enterButton.setDisable(true);
         });
 
         bmiButton.setOnAction(event -> {
@@ -174,62 +268,9 @@ public class Main extends Application {
         	borderpane.setTop(menuBar);
         });
         
-        heightSlider.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				// TODO Auto-generated method stub
-				if (newValue == null) {
-					heightLabel.setText("");
-					return;
-				}
-				
-				int newVal = (int) Math.round(newValue.doubleValue());
-				int oldVal = (int) Math.round(oldValue.doubleValue());
-				
-				heightLabel.setText("Height: " + newVal);	
-				
-				int factor = (int) imageView.getFitHeight();
-				
-				if (newVal > oldVal) {
-					factor += (newVal - oldVal);
-					imageView.setFitHeight(factor);
-				}
-				else if (newVal < oldVal) {
-					factor -= (oldVal - newVal);
-					imageView.setFitHeight(factor);
-				}
-			}
-        	
-        });
-        
-        shoulderSlider.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				// TODO Auto-generated method stub
-				if (newValue == null) {
-					shoulderLabel.setText("");
-					return;
-				}
-				shoulderLabel.setText("Shoulder: " + Math.round(newValue.doubleValue()));
-			}
-        	
-        });
-        
-        hipSlider.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				// TODO Auto-generated method stub
-				if (newValue == null) {
-					hipLabel.setText("");
-					return;
-				}
-				hipLabel.setText("Hip: " + Math.round(newValue.doubleValue()));
-			}
-        	
-        });
+        sliderFunction(heightSlider, imageView);
+        sliderFunction(shoulderSlider, imageView);
+        sliderFunction(hipSlider, imageView);
 
         // Create Layout Containers
         HBox hBox3 = new HBox(15, bmiButton, dressButton, addDressButton, logoutButton);
@@ -240,14 +281,15 @@ public class Main extends Application {
         vBox2 = new VBox(50, hBox3, hBox4);
         vBox2.setAlignment(Pos.CENTER);
 
-        setUpValidation(userText);
-        setUpValidation(passText);
+        setUpValidation(userText, passText, enterButton);
+        setUpValidation(newUserText, newPassText, enter1Button);
+        
         // Create Controls
         // Set events to Controls
         // Create Layout Containers
         // Creates scene and set myStyles2.css
     }
-    private void setUpValidation(final TextField tf) {
+    private void setUpValidation(final TextField tf, final TextField tf1, final Button button) {
         tf.textProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue.length() < 7){
                 tf.setStyle("-fx-text-box-border: red; -fx-focus-color: red");
@@ -255,13 +297,73 @@ public class Main extends Application {
             else{
                 tf.setStyle("-fx-text-box-border: blue; -fx-focus-color: blue");
             }
-            if(passText.getText().length() >= 7 && userText.getText().length() >=7){
-                enterButton.setDisable(false);
-
+            if(tf.getText().length() >= 7 && tf1.getText().length() >=7){
+                button.setDisable(false);
             }
-
+        });
+        
+        tf1.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.length() < 7){
+                tf1.setStyle("-fx-text-box-border: red; -fx-focus-color: red");
+            }
+            else{
+                tf1.setStyle("-fx-text-box-border: blue; -fx-focus-color: blue");
+            }
+            if(tf.getText().length() >= 7 && tf1.getText().length() >=7){
+                button.setDisable(false);
+            }
         });
     }
+    
+    private void sliderFunction(final Slider slider, final ImageView imageView) {
+    	slider.valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				// TODO Auto-generated method stub
+				if (newValue == null) {
+					if (slider == hipSlider) {
+						hipLabel.setText("");
+						return;
+					}
+					else if (slider == shoulderSlider) {
+						shoulderLabel.setText("");
+						return;
+					}
+					else if (slider == heightSlider) {
+						heightLabel.setText("");
+						return;
+					}
+				}
+				
+				int oldVal = (int) Math.round(oldValue.doubleValue());
+				int newVal = (int) Math.round(newValue.doubleValue());
+				
+				double heightFactor = imageView.getFitHeight();
+				double factor = imageView.getFitWidth();
+				
+				if (slider == hipSlider) {
+					hipLabel.setText("Hip: " + newVal);
+				}
+				else if (slider == shoulderSlider) {
+					shoulderLabel.setText("Shoulder: " + newVal);
+				}
+				else if (slider == heightSlider) {
+					heightLabel.setText("Height: " + newVal);
+					
+					if (newVal > oldVal) {
+						heightFactor += (newVal - oldVal);
+						imageView.setFitHeight(heightFactor);
+					}
+					else if (newVal < oldVal) {
+						heightFactor -= (oldVal - newVal);
+						imageView.setFitHeight(heightFactor);
+					}
+				}
+			}	
+        });
+    }
+    
     private void buildFileMenu(Stage primaryStage)
     {
         fileMenu = new Menu("File");
@@ -269,7 +371,10 @@ public class Main extends Application {
         exitItem = new MenuItem("Exit");
         newItem.setAccelerator(KeyCombination.keyCombination("shortcut+N"));
         exitItem.setAccelerator(KeyCombination.keyCombination("shortcut+Q"));
-        exitItem.setOnAction(event -> primaryStage.close());
+        exitItem.setOnAction(event -> {
+        	mongoClient.close();
+        	primaryStage.close();
+        });
         newItem.setOnAction(event -> {
             userText.setText("");
             passText.setText("");
