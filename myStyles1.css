@@ -11,6 +11,7 @@
 }
 .menu-bar {
     -fx-background-color: transparent;
+    -fx-background-color: lightblue;
 }
 .menu {
     -fx-label-padding: 3px;
@@ -28,3 +29,4 @@
     -fx-background-color: white;
     -fx-text-fill: black;
 }
+
