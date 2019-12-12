@@ -1,0 +1,48 @@
+.root
+{
+-fx-background-color: #383838;
+-fx-font-size: 11pt;
+}
+.label{
+    -fx-text-fill: #e8e8e6;
+}
+.button{
+    -fx-background-radius: 5;
+    -fx-background-color: linear-gradient(#86c1b9, #7cafc2);
+    -fx-text-fill: #FFFFFF;
+}
+.menu-bar {
+    -fx-background-color: transparent;
+    -fx-background-color: lightblue;
+
+}
+.menu {
+    -fx-label-padding: 3px;
+
+}
+.menu .label, .menu-item .label {
+    -fx-text-fill: #eee;
+}
+.context-menu {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+}
+.menu:hover, .menu:focused, .menu:pressed {
+    -fx-background-color: rgba(0, 0, 0, 0.2);
+}
+.choice-box > * {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+.slider  {
+ -fx-text-fill: black;
+ -fx-background-color: lightblue;
+ -fx-padding: 0.333333em;
+ -fx-background-radius: 6;
+}
+.slider .fill:hover {
+ -fx-background-color: #219297;
+ -fx-background-radius: 6;
+}
+.menu-bar .label{
+    -fx-text-fill: greenyellow;
+}
