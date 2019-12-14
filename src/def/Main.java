@@ -53,9 +53,9 @@ public class Main extends Application {
     
     private HBox hBox4, hBox5, hBox8;
 
-    private Label userLabel, passLabel, newUser, newPass, heightLabel, shoulderLabel, hipLabel, errorLabel;
+    private Label userLabel, passLabel, newUser, newPass, heightLabel, weightLabel, errorLabel;
     
-    private Slider heightSlider, shoulderSlider, hipSlider;
+    private Slider heightSlider, weightSlider;
 
     private Button display, choose, enterButton, enter1Button, cancelButton, newAccount, logoutButton, bmiButton, dressButton, addDressButton, profileButton;
 
@@ -78,8 +78,6 @@ public class Main extends Application {
     private Account account;
     
     private FileInputStream inputStream;
-    
-    private List<String> dressList;
     
     private String imagePath;
     
@@ -106,6 +104,7 @@ public class Main extends Application {
 
         // Create Controls
     	inputStream = new FileInputStream("src/figure_silhouette_png.png");
+    	//image = makeTransparent(scale(new Image(inputStream), 54, 200, false));
     	image = new Image(inputStream);
     	imageView = new ImageView(image);
     	imageView.setFitHeight(200);
@@ -117,23 +116,16 @@ public class Main extends Application {
         bmiButton = new Button("Input BMI");
         dressButton = new Button("Choose Dress");
         addDressButton = new Button("Add Dress");
-        addDressButton.setDisable(false);
+        //addDressButton.setDisable(false);
     	
     	heightLabel = new Label("Height: ");
-    	shoulderLabel = new Label("Shoulder: ");
-    	hipLabel = new Label("Hip: ");
+    	weightLabel = new Label("Weight: ");
     	
-    	shoulderSlider = new Slider(0, 100, 50);
-    	shoulderSlider.setShowTickLabels(true);
-    	shoulderSlider.setShowTickMarks(true);
-    	shoulderSlider.setMajorTickUnit(25.0f);
-    	shoulderSlider.setBlockIncrement(1.0f);
-    	
-    	hipSlider = new Slider(0, 100, 50);
-    	hipSlider.setShowTickLabels(true);
-    	hipSlider.setShowTickMarks(true);
-    	hipSlider.setMajorTickUnit(25.0f);
-    	hipSlider.setBlockIncrement(1.0f);
+    	weightSlider = new Slider(0, 100, 50);
+    	weightSlider.setShowTickLabels(true);
+    	weightSlider.setShowTickMarks(true);
+    	weightSlider.setMajorTickUnit(25.0f);
+    	weightSlider.setBlockIncrement(1.0f);
     	
     	heightSlider = new Slider(0, 100, 50);
     	heightSlider.setShowTickLabels(true);
@@ -147,11 +139,11 @@ public class Main extends Application {
         userText = new TextField();
         passText = new PasswordField();
 
-      /*  userLabel.setTooltip(new Tooltip("Username should be at least 7 characters long"));
+        userLabel.setTooltip(new Tooltip("Username should be at least 7 characters long"));
         passLabel.setTooltip(new Tooltip("Password should be at least 7 characters long"));
         userText.setTooltip(new Tooltip("Username should be at least 7 characters long"));
         passText.setTooltip(new Tooltip("Password should be at least 7 characters long"));
-	*/
+
         newUser = new Label("New User Name");
         newPass = new Label("New Password");
 
@@ -167,22 +159,20 @@ public class Main extends Application {
         errorLabel = new Label("");
         cancelButton = new Button("Cancel");
         enter1Button = new Button("Enter");
-        //enter1Button.setDisable(true);
+        enter1Button.setDisable(true);
         
         enterButton = new Button("Enter");
-        //enterButton.setDisable(true);
+        enterButton.setDisable(true);
         
         choose = new Button("Choose");
         display = new Button("Display");
         
-        cb = new ChoiceBox<>();
-        cb.getItems().addAll("User", "Admin" );
-        cb.getSelectionModel().selectFirst();
-        cb.setDisable(false);
+        //cb = new ChoiceBox<>();
+        //cb.getItems().addAll("User", "Admin" );
+        //cb.getSelectionModel().selectFirst();
+        //cb.setDisable(false);
         
         cb1 = new ChoiceBox<>();
-        
-        dressList = new ArrayList<String>();
         
         // Set events to Control
         dressButton.setOnAction(event -> {
@@ -190,15 +180,19 @@ public class Main extends Application {
         	DBCursor cursor = collection.find(query);
         	DBObject user = cursor.one();
         	
+        	List<String> dressList = new ArrayList<String>();
+        	
         	BasicDBList dresses = (BasicDBList) user.get("dresses");
         	//List<String> dressList = new ArrayList<String>();
         	
         	for (Object dress : dresses) {
         		dressList.add((String) dress);
         	}
-        	
+
         	for (int i = 0; i < dressList.size(); i++) {
-        		cb1.getItems().add(dressList.get(i));
+        		if (cb1.getItems().size() != dressList.size()) {
+        			cb1.getItems().add(dressList.get(i));
+        		}
         	}       	
         	  	
         	HBox hBox7 = new HBox(15, display, choose);
@@ -216,56 +210,15 @@ public class Main extends Application {
         	borderpane.setCenter(vBox4);     	
         });
         
-        choose.setOnAction(event -> {
-        	//imageView1.setFitHeight(175);
-        	//imageView1.setFitWidth(53.5);
+        choose.setOnAction(event -> {       	
+        	StackPane stack = new StackPane();
         	
-        	
-        	int width = (int) image.getWidth();
-        	int height = (int) image.getHeight();
-        	
-        	Image newNewImage = new Image(new File(cb1.getSelectionModel().getSelectedItem()).toURI().toString(), width, height - 100, false, false);
-        	
-        	int width1 = (int) newNewImage.getWidth();
-        	int height1 = (int) newNewImage.getHeight();
-        	
-        	WritableImage wImage = new WritableImage(width, height);
-        	PixelReader pixelReader = image.getPixelReader();
-        	PixelWriter writer = wImage.getPixelWriter();
-        	
-        	PixelReader pixelReader1 = newNewImage.getPixelReader();
-        	
-        	for(int y = 0; y < height; y++) { 
-                for(int x = 0; x < width; x++) { 
-                   //Retrieving the color of the pixel of the loaded image   
-                   Color color = pixelReader.getColor(x, y); 
-                     
-                   //Setting the color to the writable image 
-                   writer.setColor(x, y, color.darker());              
-                }
-            }
-        	
-        	for(int y = 0; y < height1; y++) { 
-                for(int x = 0; x < width1; x++) { 
-                   //Retrieving the color of the pixel of the loaded image   
-                   Color color = pixelReader1.getColor(x, y); 
-                     
-                   //Setting the color to the writable image 
-                   writer.setColor(x, y, color.darker());              
-                }
-            }
-        	
-        	ImageView newImageView = new ImageView(wImage);
-        	newImageView.setFitHeight(200);
-        	newImageView.setFitWidth(53.5);
-        	
-        	//imageView1.setBlendMode(BlendMode.DIFFERENCE);
-        	
-        	//Group blend = new Group(imageView, imageView1);
+        	stack = newStack();
         	
         	hBox4.getChildren().clear();
         	
-        	hBox4.getChildren().addAll(newImageView);
+        	//hBox4.getChildren().addAll(newImageView);
+        	hBox4.getChildren().addAll(stack);
         	
         	borderpane.setCenter(vBox2);
         });
@@ -289,32 +242,6 @@ public class Main extends Application {
             hBox8.getChildren().clear();
             hBox8.getChildren().add(imageView1);
         });
-        
-        /*cb1.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() { 
-        	  
-            // if the item of the list is changed 
-            public void changed(ObservableValue ov, Number value, Number new_value) 
-            { 
-            	// !null.equals(dressList.get(new_value.intValue())
-                // set the text for the label to the selected item 
-                if (!null.equals(dressList.get(new_value.intValue()))) {
-                	try {
-        				inputStream = new FileInputStream(cb1.getSelectionModel().getSelectedItem());
-        				
-                    } catch (FileNotFoundException e) {
-        				// TODO Auto-generated catch block
-        				e.printStackTrace();
-                    }
-                	
-                    Image image1 = new Image(inputStream);
-                    ImageView imageView1 = new ImageView(image);
-                    imageView.setFitHeight(200);
-                    imageView.setFitWidth(53.5);
-                    	
-                    gridPane3.addRow(1, imageView1);
-                }
-            } 
-        }); */
         
         addDressButton.setOnAction(event -> {
         	FileChooser fileChooser = new FileChooser();
@@ -390,13 +317,13 @@ public class Main extends Application {
         		if (user.get("password").equals(passText.getText())) {
         			errorLabel.setText("");
         			
-        			if(cb.getSelectionModel().getSelectedItem().equalsIgnoreCase("User")){
-                        addDressButton.setDisable(true);
-        			}
+        			//if(cb.getSelectionModel().getSelectedItem().equalsIgnoreCase("User")){
+                        //addDressButton.setDisable(true);
+        			//}
         		
         			borderpane.setCenter(vBox2);
         			enterButton.setDisable(true);
-        			cb.setDisable(true);
+        			//cb.setDisable(true);
         		}
         		else
         			errorLabel.setText("Password does not match Username");
@@ -409,12 +336,12 @@ public class Main extends Application {
         // Create Layout Containers
         buildFileMenu(primaryStage);
         
-        Menu cbMenu = new Menu();
-        cbMenu.setGraphic(cb);
+        //Menu cbMenu = new Menu();
+        //cbMenu.setGraphic(cb);
  
         borderpane = new BorderPane();
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(fileMenu, cbMenu);
+        menuBar.getMenus().addAll(fileMenu);
 
         GridPane gridpane = new GridPane();
         gridpane.addRow(0,userLabel,userText);
@@ -446,8 +373,16 @@ public class Main extends Application {
         logoutButton.setOnAction(event -> {
             userText.setText("");
             passText.setText("");
-            addDressButton.setDisable(false);
-            cb.setDisable(false);
+            //addDressButton.setDisable(false);
+            //cb.setDisable(false);
+            
+        	imageView.setFitHeight(200);
+        	imageView.setFitWidth(54);
+        	hBox4.getChildren().clear();
+        	hBox4.getChildren().add(imageView);
+        	
+        	imageView1 = new ImageView();
+            
             borderpane.setCenter(vBox1);
         });
 
@@ -455,8 +390,7 @@ public class Main extends Application {
         	GridPane gridPane1 = new GridPane();
             
             gridPane1.addRow(0, heightLabel, heightSlider);
-            gridPane1.addRow(1, shoulderLabel, shoulderSlider);
-            gridPane1.addRow(2,  hipLabel, hipSlider);
+            gridPane1.addRow(1, weightLabel, weightSlider);
             gridPane1.setHgap(15);
             gridPane1.setVgap(15);
             
@@ -471,13 +405,23 @@ public class Main extends Application {
         });
         
         profileButton.setOnAction(event -> {
+        	StackPane stack;
+        	hBox4.getChildren().clear();
+        
+        	if (!cb1.getSelectionModel().isEmpty()) {
+        		stack = newStack();
+            	hBox4.getChildren().add(stack);
+        	}
+        	else {
+        		hBox4.getChildren().add(imageView);
+        	}
+ 
         	borderpane.setCenter(vBox2);
         	borderpane.setTop(menuBar);
         });
         
         sliderFunction(heightSlider, imageView);
-        sliderFunction(shoulderSlider, imageView);
-        sliderFunction(hipSlider, imageView);
+        sliderFunction(weightSlider, imageView);
 
         // Create Layout Containers
         HBox hBox3 = new HBox(15, bmiButton, dressButton, addDressButton, logoutButton);
@@ -488,8 +432,8 @@ public class Main extends Application {
         vBox2 = new VBox(50, hBox3, hBox4);
         vBox2.setAlignment(Pos.CENTER);
 
-        //setUpValidation(userText, passText, enterButton);
-        //setUpValidation(newUserText, newPassText, enter1Button);
+        setUpValidation(userText, passText, enterButton);
+        setUpValidation(newUserText, newPassText, enter1Button);
         
         // Create Controls
         // Set events to Controls
@@ -529,12 +473,8 @@ public class Main extends Application {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				// TODO Auto-generated method stub
 				if (newValue == null) {
-					if (slider == hipSlider) {
-						hipLabel.setText("");
-						return;
-					}
-					else if (slider == shoulderSlider) {
-						shoulderLabel.setText("");
+					if (slider == weightSlider) {
+						weightLabel.setText("");
 						return;
 					}
 					else if (slider == heightSlider) {
@@ -547,13 +487,21 @@ public class Main extends Application {
 				int newVal = (int) Math.round(newValue.doubleValue());
 				
 				double heightFactor = imageView.getFitHeight();
-				double factor = imageView.getFitWidth();
+				double widthFactor = imageView.getFitWidth();
+				//double heightFactor = image.getHeight();
+				//double widthFactor = image.getWidth();
 				
-				if (slider == hipSlider) {
-					hipLabel.setText("Hip: " + newVal);
-				}
-				else if (slider == shoulderSlider) {
-					shoulderLabel.setText("Shoulder: " + newVal);
+				if (slider == weightSlider) {
+					weightLabel.setText("Weight: " + newVal);
+					
+					if (newVal > oldVal) {
+						widthFactor += (newVal - oldVal) / 4.0;
+						imageView.setFitWidth(widthFactor);
+					}
+					else if (newVal < oldVal) {
+						widthFactor -= (oldVal - newVal) / 4.0;
+						imageView.setFitWidth(widthFactor);
+					}
 				}
 				else if (slider == heightSlider) {
 					heightLabel.setText("Height: " + newVal);
@@ -567,6 +515,9 @@ public class Main extends Application {
 						imageView.setFitHeight(heightFactor);
 					}
 				}
+				
+				//image = scale(image, (int) widthFactor, (int) heightFactor, false);
+				//imageView.setImage(image);
 			}	
         });
     }
@@ -615,5 +566,29 @@ public class Main extends Application {
         }
 
         return outputImage;
+    }
+    
+    private Image scale(Image source, int targetWidth, int targetHeight, boolean preserveRatio) {
+        ImageView imageView = new ImageView(source);
+        imageView.setPreserveRatio(preserveRatio);
+        imageView.setFitWidth(targetWidth);
+        imageView.setFitHeight(targetHeight);
+        return imageView.snapshot(null, null);
+    }
+    
+    private StackPane newStack () {
+    	StackPane stack = new StackPane();
+    	
+    	ImageView imageView100 = new ImageView(image);
+    	imageView100.setFitHeight(imageView.getFitHeight());
+    	imageView100.setFitWidth(imageView.getFitWidth());
+    	
+    	ImageView imageView1000 = new ImageView(makeTransparent(image1));      	
+    	imageView1000.setFitHeight(((3.0/5.0)*imageView.getFitHeight()) + 15);
+    	imageView1000.setFitWidth(imageView.getFitWidth() + 41);
+    	
+    	stack.getChildren().addAll(imageView100, imageView1000);
+    	
+    	return stack;
     }
 }
